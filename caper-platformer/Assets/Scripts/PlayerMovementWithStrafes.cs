@@ -49,7 +49,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 	float control;
 	float drop;
 
-	public bool JumpQueue = false;
+	public bool JumpQueue = true;
 	public bool wishJump = false;
 
     //UI
