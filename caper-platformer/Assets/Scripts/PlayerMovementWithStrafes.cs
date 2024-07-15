@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMovementWithStrafes : MonoBehaviour
@@ -13,6 +14,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 	public LayerMask LavaMask;
 
 	public TextMeshProUGUI speedLabel;
+	public TextMeshProUGUI topSpeedLabel;
 	public TextMeshProUGUI directionLabel;
 	public TextMeshProUGUI jumpQueueLabel;
 
@@ -33,6 +35,8 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 	public float friction = 6f;
 	private float playerTopVelocity = 0;
 	public float playerFriction = 0f;
+	public float maxSpeed;
+
 	float addspeed;
 	float accelspeed;
 	float currentspeed;
@@ -98,7 +102,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 		ZVelocity = Mathf.Abs(PlayerVel.z);
 		XVelocity = Mathf.Abs(PlayerVel.x);
 
-
 		ModulasSpeed = Mathf.Sqrt(PlayerVel.z * PlayerVel.z + PlayerVel.x * PlayerVel.x);
 
 		#endregion
@@ -121,6 +124,9 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 		else if (!controller.isGrounded)
 			AirMove();
 
+		// Apply speed limit
+		ApplySpeedLimit();
+
 		// Move the controller
 		controller.Move(playerVelocity * Time.deltaTime);
 
@@ -132,11 +138,35 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 			playerTopVelocity = udp.magnitude;
 		}
 
+		topSpeedLabel.text = "top speed: " + playerTopVelocity.ToString();
 		speedLabel.text = "speed: " + Mathf.Round(speed);
 		directionLabel.text = "direction: " + wishdir;
 		jumpQueueLabel.text = "jump queue: " + JumpQueue;
-
 	}
+
+	// Apply speed limit to playerVelocity
+	void ApplySpeedLimit()
+	{
+		
+		Vector3 horizontalVelocity = new Vector3(playerVelocity.x, 0, playerVelocity.z);
+		if (horizontalVelocity.magnitude > maxSpeed)
+		{
+			horizontalVelocity = horizontalVelocity.normalized * maxSpeed;
+			playerVelocity.x = horizontalVelocity.x;
+			playerVelocity.z = horizontalVelocity.z;
+		}
+
+		// Optionally, limit vertical speed as well
+		if (playerVelocity.y > maxSpeed)
+		{
+			playerVelocity.y = maxSpeed;
+		}
+		else if (playerVelocity.y < -maxSpeed)
+		{
+			playerVelocity.y = -maxSpeed;
+		}
+	}
+
 	public void SetMovementDir()
 	{
 		x = Input.GetAxis("Horizontal");
@@ -311,9 +341,12 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 			if (speed > 0)
 				newspeed /= speed;
 
-			playerVelocity.x *= newspeed;
-			// playerVelocity.y *= newspeed;
-			playerVelocity.z *= newspeed;
+
+
+
+				playerVelocity.x *= newspeed;
+				// playerVelocity.y *= newspeed;
+				playerVelocity.z *= newspeed;
 		}
 
 	}
