@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerMovementWithStrafes : MonoBehaviour
+
 {
 	public CharacterController controller;
 	public Transform GroundCheck;
 	public LayerMask GroundMask;
 	public LayerMask LavaMask;
+
+	public TextMeshProUGUI speedLabel;
+	public TextMeshProUGUI directionLabel;
+	public TextMeshProUGUI jumpQueueLabel;
 
 	private float wishspeed2;
 	private float gravity = -20f;
@@ -60,6 +66,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 	
 	public Transform playerView;
 	public Transform spawnPos;
+	private Transform spawnPosReal;
 
 	public float x;
 	public float z;
@@ -75,11 +82,12 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     {
         //This is for UI, feel free to remove the Start() function.
 		lastPos = player.position;
+		
+
 
 	}
-
-    // Update is called once per frame
-    void Update()
+	// Update is called once per frame
+	void Update()
 	{
 		#region //UI, Feel free to remove the region.
 
@@ -98,11 +106,11 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 		IsGrounded = Physics.CheckSphere(GroundCheck.position, GroundDistance, GroundMask);
 		IsLava = Physics.CheckSphere(GroundCheck.position, GroundDistance, LavaMask);
 
-		if(IsLava)
+		if (IsLava)
 		{
-			Debug.Log("Player Touching Lava, respawning at: " + spawnPos.position);
-
-			controller.Move(spawnPos.position);
+			controller.enabled = false;
+			controller.transform.position = spawnPos.position;
+			controller.enabled = true;
 		}
 
 		QueueJump();
@@ -120,7 +128,14 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 		udp = playerVelocity;
 		udp.y = 0;
 		if (udp.magnitude > playerTopVelocity)
+		{
 			playerTopVelocity = udp.magnitude;
+		}
+
+		speedLabel.text = "speed: " + Mathf.Round(speed);
+		directionLabel.text = "direction: " + wishdir;
+		jumpQueueLabel.text = "jump queue: " + JumpQueue;
+
 	}
 	public void SetMovementDir()
 	{
@@ -301,9 +316,5 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 			playerVelocity.z *= newspeed;
 		}
 
-		void LateUpdate()
-		{
-
-		}
 	}
 }
