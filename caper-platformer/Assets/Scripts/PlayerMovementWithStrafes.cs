@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 	public CharacterController controller;
 	public Transform GroundCheck;
 	public LayerMask GroundMask;
+	public LayerMask LavaMask;
 
 	private float wishspeed2;
 	private float gravity = -20f;
@@ -43,6 +45,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     //UI
 	private Vector3 lastPos;
 	private Vector3 moved;
+	
 	public Vector3 PlayerVel;
 	public float ModulasSpeed;
 	public float ZVelocity;
@@ -56,11 +59,13 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 	Vector3 vec;
 	
 	public Transform playerView;
+	public Transform spawnPos;
 
 	public float x;
 	public float z;
 
 	public bool IsGrounded;
+	public bool IsLava;
 
 	public Transform player;
 	Vector3 udp;
@@ -70,6 +75,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     {
         //This is for UI, feel free to remove the Start() function.
 		lastPos = player.position;
+
 	}
 
     // Update is called once per frame
@@ -90,6 +96,14 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 		#endregion
 
 		IsGrounded = Physics.CheckSphere(GroundCheck.position, GroundDistance, GroundMask);
+		IsLava = Physics.CheckSphere(GroundCheck.position, GroundDistance, LavaMask);
+
+		if(IsLava)
+		{
+			Debug.Log("Player Touching Lava, respawning at: " + spawnPos.position);
+
+			controller.Move(spawnPos.position);
+		}
 
 		QueueJump();
 
@@ -285,6 +299,11 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 			playerVelocity.x *= newspeed;
 			// playerVelocity.y *= newspeed;
 			playerVelocity.z *= newspeed;
+		}
+
+		void LateUpdate()
+		{
+
 		}
 	}
 }
