@@ -666,10 +666,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 154922835021365424, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: mouseSensitivity
-      value: 200
-      objectReference: {fileID: 0}
     - target: {fileID: 2407525965432617693, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 11.39
@@ -711,45 +707,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: maxSpeed
-      value: 45
-      objectReference: {fileID: 0}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: spawnPos
       value: 
       objectReference: {fileID: 1899994818}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: jumpSpeed
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: moveSpeed
-      value: 15
-      objectReference: {fileID: 0}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: airControl
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: airAcceleration
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: runAcceleration
-      value: 24
-      objectReference: {fileID: 0}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: airDeacceleration
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: runDeacceleration
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
-      propertyPath: sideStrafeAcceleration
-      value: 70
-      objectReference: {fileID: 0}
     - target: {fileID: 7244682462121685926, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: m_Name
       value: Player
