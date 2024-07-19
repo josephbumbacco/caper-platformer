@@ -39,6 +39,8 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     public float maxSpeed;
 
     public float forceMagnitude; // Force magnitude when primary mouse button is clicked
+    public float maxDashDistance; // Maximum distance for the dash
+    private Vector3 dashStartPos;
 
     float speedLimit = 20f; // Speed limit
     float addspeed;
@@ -147,6 +149,24 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             {
                 ApplyForceInFacingDirection();
             }
+        }
+
+        // Check the distance traveled during the dash
+        if (isDashing)
+        {
+            float dashDistance = Vector3.Distance(dashStartPos, transform.position);
+            if (dashDistance >= maxDashDistance)
+            {
+                // Reduce the force
+                playerVelocity = new Vector3(playerVelocity.x * 0.1f, playerVelocity.y, playerVelocity.z * 0.1f);
+                
+            }
+        }
+
+        // Apply downward force when Shift key is pressed
+        if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+        {
+            playerVelocity.y += gravity * 2 * Time.deltaTime; // Adjust the multiplier as needed for the desired downward force
         }
 
         // Move the controller
@@ -373,6 +393,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         {
             playerVelocity.y = -maxSpeed;
         }
+
     }
 
     // Apply force in the direction the player is facing
@@ -380,6 +401,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     {
         speedLimitBool = false;
         isDashing = true;
+        dashStartPos = transform.position;
         Vector3 forceDirection = playerView.forward;
         playerVelocity += forceDirection * forceMagnitude;
         StartCoroutine(ResetSpeedLimitAfterDelay(0.2f)); // Adjust the delay as needed
