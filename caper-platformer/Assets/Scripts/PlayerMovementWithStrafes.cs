@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
-using Unity.VisualScripting;
+﻿using System.Collections;
 using UnityEngine;
+using TMPro;
 
 public class PlayerMovementWithStrafes : MonoBehaviour
 {
@@ -20,29 +17,31 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     private float wishspeed2;
     private float gravity = -20f;
+    private float normalGravity = -20f;
+    private float increasedGravity = -30f; // Adjust the increased gravity as needed
+    private float increasedGravityDuration = 0.5f; // Duration of increased gravity effect
     float wishspeed;
 
     public float GroundDistance = 0.4f;
-    public float moveSpeed = 7.0f;  // Ground move speed
-    public float runAcceleration = 14f;   // Ground accel
-    public float runDeacceleration = 10f;   // Deacceleration that occurs when running on the ground
-    public float airAcceleration = 2.0f;  // Air accel
-    public float airDeacceleration = 2.0f;    // Deacceleration experienced when opposite strafing
-    public float airControl = 0.3f;  // How precise air control is
-    public float sideStrafeAcceleration = 50f;   // How fast acceleration occurs to get up to sideStrafeSpeed when side strafing
-    public float sideStrafeSpeed = 1f;    // What the max speed to generate when side strafing
+    public float moveSpeed = 7.0f;
+    public float runAcceleration = 14f;
+    public float runDeacceleration = 10f;
+    public float airAcceleration = 2.0f;
+    public float airDeacceleration = 2.0f;
+    public float airControl = 0.3f;
+    public float sideStrafeAcceleration = 50f;
+    public float sideStrafeSpeed = 1f;
     public float jumpSpeed = 8.0f;
     public float friction = 6f;
     private float playerTopVelocity = 0;
     public float playerFriction = 0f;
-
     public float maxSpeed;
-
-    public float forceMagnitude; // Force magnitude when primary mouse button is clicked
-    public float maxDashDistance; // Maximum distance for the dash
+    public float forceMagnitude;
+    public float maxDashDistance;
     private Vector3 dashStartPos;
+    public float dashDecelerationTime = 0.5f; // Time to smoothly decelerate after the dash
 
-    float speedLimit = 20f; // Speed limit
+    float speedLimit = 20f;
     float addspeed;
     float accelspeed;
     float currentspeed;
@@ -60,7 +59,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     public bool isDashing = false;
     public bool speedLimitBool = true;
 
-    //UI
     private Vector3 lastPos;
     private Vector3 moved;
 
@@ -68,7 +66,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     public float ModulasSpeed;
     public float ZVelocity;
     public float XVelocity;
-    //End UI
 
     public Vector3 moveDirection;
     public Vector3 moveDirectionNorm;
@@ -91,11 +88,9 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     private void Start()
     {
-        //This is for UI, feel free to remove the Start() function.
         lastPos = player.position;
     }
 
-    // Update is called once per frame
     void Update()
     {
         #region //UI, Feel free to remove the region.
@@ -151,15 +146,13 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             }
         }
 
-        // Check the distance traveled during the dash
+        // Gradually slow down the dash
         if (isDashing)
         {
             float dashDistance = Vector3.Distance(dashStartPos, transform.position);
             if (dashDistance >= maxDashDistance)
             {
-                // Reduce the force
-                playerVelocity = new Vector3(playerVelocity.x * 0.1f, playerVelocity.y, playerVelocity.z * 0.1f);
-                
+                StartCoroutine(SlowDownDash());
             }
         }
 
@@ -193,7 +186,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         z = Input.GetAxis("Vertical");
     }
 
-    //Queues the next jump
     void QueueJump()
     {
         if (Input.GetButtonDown("Jump") && IsGrounded)
@@ -212,7 +204,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         }
     }
 
-    //Calculates wish acceleration
     public void Accelerate(Vector3 wishdir, float wishspeed, float accel)
     {
         currentspeed = Vector3.Dot(playerVelocity, wishdir);
@@ -227,7 +218,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         playerVelocity.z += accelspeed * wishdir.z;
     }
 
-    //Execs when the player is in the air
     public void AirMove()
     {
         SetMovementDir();
@@ -266,21 +256,13 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         // Apply gravity
         playerVelocity.y += gravity * Time.deltaTime;
 
-        /**
-            * Air control occurs when the player is in the air, it allows
-            * players to move side to side much faster rather than being
-            * 'sluggish' when it comes to cornering.
-            */
-
         void AirControl(Vector3 wishdir, float wishspeed)
         {
-            // Can't control movement if not moving forward or backward
             if (Input.GetAxis("Horizontal") == 0 || wishspeed == 0)
                 return;
 
             zspeed = playerVelocity.y;
             playerVelocity.y = 0;
-            /* Next two lines are equivalent to idTech's VectorNormalize() */
             speed = playerVelocity.magnitude;
             playerVelocity.Normalize();
 
@@ -288,7 +270,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             k = 32;
             k *= airControl * dot * dot * Time.deltaTime;
 
-            // Change direction while slowing down
             if (dot > 0)
             {
                 playerVelocity.x = playerVelocity.x * speed + wishdir.x * k;
@@ -300,17 +281,13 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             }
 
             playerVelocity.x *= speed;
-            playerVelocity.y = zspeed; // Note this line
+            playerVelocity.y = zspeed;
             playerVelocity.z *= speed;
         }
     }
 
-    /**
-        * Called every frame when the engine detects that the player is on the ground
-        */
     public void GroundMove()
     {
-        // Do not apply friction if the player is queueing up the next jump
         if (!wishJump)
             ApplyFriction(1.0f);
         else
@@ -328,7 +305,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
         Accelerate(wishdir, wishspeed, runAcceleration);
 
-        // Reset the gravity velocity
         playerVelocity.y = 0;
 
         if (wishJump)
@@ -337,17 +313,13 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             wishJump = false;
         }
 
-        /**
-            * Applies friction to the player, called in both the air and on the ground
-            */
         void ApplyFriction(float t)
         {
-            vec = playerVelocity; // Equivalent to: VectorCopy();
+            vec = playerVelocity;
             vec.y = 0f;
             speed = vec.magnitude;
             drop = 0f;
 
-            /* Only if the player is on the ground then apply friction */
             if (controller.isGrounded)
             {
                 control = speed < runDeacceleration ? runDeacceleration : speed;
@@ -364,16 +336,13 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             if (playerVelocity.x < speedLimit && playerVelocity.y < speedLimit)
             {
                 playerVelocity.x *= newspeed;
-                // playerVelocity.y *= newspeed;
                 playerVelocity.z *= newspeed;
             }
         }
     }
 
-    // Apply speed limit to playerVelocity
     void ApplySpeedLimit()
     {
-
         Vector3 horizontalVelocity = new Vector3(playerVelocity.x, 0, playerVelocity.z);
         if (horizontalVelocity.magnitude > maxSpeed)
         {
@@ -382,7 +351,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             playerVelocity.z = horizontalVelocity.z;
         }
 
-        // Optionally, limit vertical speed as well
         if (playerVelocity.y > maxSpeed)
         {
             playerVelocity.y = maxSpeed / 2;
@@ -393,10 +361,8 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         {
             playerVelocity.y = -maxSpeed;
         }
-
     }
 
-    // Apply force in the direction the player is facing
     void ApplyForceInFacingDirection()
     {
         speedLimitBool = false;
@@ -410,8 +376,45 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     private IEnumerator ResetSpeedLimitAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        // Limit the speed again after the delay
         speedLimitBool = true;
         ApplySpeedLimit();
     }
+
+    private IEnumerator SlowDownDash()
+    {
+        float elapsed = 0f;
+        Vector3 initialVelocity = playerVelocity;
+
+        // Define the minimum velocity to which the player will slow down
+        float minVelocityMagnitude = 30f; // Adjust this value as needed
+
+        while (elapsed < dashDecelerationTime)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / dashDecelerationTime;
+
+            // Lerp velocity from initial to min speed
+            float targetSpeed = Mathf.Lerp(initialVelocity.magnitude, minVelocityMagnitude, t);
+            Vector3 targetVelocity = initialVelocity.normalized * targetSpeed;
+
+            // Apply the target velocity to playerVelocity
+            playerVelocity = targetVelocity;
+
+            yield return null;
+        }
+
+        // Ensure playerVelocity is at least the minVelocityMagnitude after coroutine ends
+        if (playerVelocity.magnitude < minVelocityMagnitude)
+        {
+            playerVelocity = playerVelocity.normalized * minVelocityMagnitude;
+        }
+
+        isDashing = false;
+
+        // Temporarily increase gravity for a faster fall
+        gravity = increasedGravity;
+        yield return new WaitForSeconds(increasedGravityDuration);
+        gravity = normalGravity;
+    }
+
 }
