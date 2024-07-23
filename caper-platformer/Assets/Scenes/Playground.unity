@@ -712,7 +712,7 @@ PrefabInstance:
       objectReference: {fileID: 1816236100}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: maxSpeed
-      value: 50
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: spawnPos
@@ -743,6 +743,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 797540093}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
+      propertyPath: bounceHeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: topSpeedLabel
       value: 
       objectReference: {fileID: 1582141824}
@@ -750,6 +754,10 @@ PrefabInstance:
       propertyPath: directionLabel
       value: 
       objectReference: {fileID: 1786025763}
+    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
+      propertyPath: forceMagnitude
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: jumpQueueLabel
       value: 

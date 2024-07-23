@@ -86,6 +86,11 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     public Transform player;
     Vector3 udp;
 
+    public float bounceHeight = 1.5f; // Initial bounce height
+    public float bounceDamping = 0.6f; // Damping factor for bounce height
+    private float bounceCooldown = 0.0f; // Cooldown time between bounces
+    private float lastBounceTime = -0.1f; // Track the last bounce time to manage cooldown
+
     private void Start()
     {
         lastPos = player.position;
@@ -127,6 +132,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             }
             isDashing = false;
             GroundMove();
+            ApplyBounce(); // Apply bounce effect when grounded
         }
         else if (!controller.isGrounded)
             AirMove();
@@ -142,6 +148,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         {
             if (!isDashing)
             {
+                bounceHeight = 1.5f;
                 ApplyForceInFacingDirection();
             }
         }
@@ -149,6 +156,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         // Gradually slow down the dash
         if (isDashing)
         {
+
             float dashDistance = Vector3.Distance(dashStartPos, transform.position);
             if (dashDistance >= maxDashDistance)
             {
@@ -188,15 +196,22 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     void QueueJump()
     {
-        if (Input.GetButtonDown("Jump") && IsGrounded)
+        if (Input.GetButtonDown("Jump"))
         {
-            wishJump = true;
+            bounceHeight = 1.5f;
+            if (IsGrounded)
+            {
+                // If on the ground, immediately apply the jump
+                wishJump = true;
+            }
+            else
+            {
+                // Queue the jump if in the air
+                JumpQueue = true;
+            }
         }
 
-        if (!IsGrounded && Input.GetButtonDown("Jump"))
-        {
-            JumpQueue = true;
-        }
+        // Apply the queued jump if on the ground
         if (IsGrounded && JumpQueue)
         {
             wishJump = true;
@@ -417,4 +432,22 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         gravity = normalGravity;
     }
 
+    private void ApplyBounce()
+    {
+        
+        if (IsGrounded && Time.time - lastBounceTime >= bounceCooldown)
+        {
+            // Check if we are falling
+            if (playerVelocity.y <= 0)
+            {
+                // Apply bounce if the bounce height is still positive
+                if (bounceHeight > 0)
+                {
+                    playerVelocity.y = Mathf.Sqrt(bounceHeight * -2f * gravity); // Calculate the bounce velocity
+                    bounceHeight *= bounceDamping; // Reduce bounce height for the next bounce
+                    lastBounceTime = Time.time; // Update last bounce time
+                }
+            }
+        }
+    }
 }
