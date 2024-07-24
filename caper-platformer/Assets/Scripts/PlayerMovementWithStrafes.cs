@@ -58,6 +58,8 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     public bool wishJump = false;
     public bool isDashing = false;
     public bool speedLimitBool = true;
+    private bool canDash = true;
+
 
     private Vector3 lastPos;
     private Vector3 moved;
@@ -98,10 +100,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     void Update()
     {
-
-       // Debug.Log(Input.mouseScrollDelta.y);
-        #region //UI, Feel free to remove the region.
-
         moved = player.position - lastPos;
         lastPos = player.position;
         PlayerVel = moved / Time.fixedDeltaTime;
@@ -110,8 +108,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         XVelocity = Mathf.Abs(PlayerVel.x);
 
         ModulasSpeed = Mathf.Sqrt(PlayerVel.z * PlayerVel.z + PlayerVel.x * PlayerVel.x);
-
-        #endregion
 
         IsGrounded = Physics.CheckSphere(GroundCheck.position, GroundDistance, GroundMask);
         IsLava = Physics.CheckSphere(GroundCheck.position, GroundDistance, LavaMask);
@@ -125,7 +121,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
         QueueJump();
 
-        /* Movement, here's the important part */
         if (controller.isGrounded)
         {
             if (playerVelocity.x > maxSpeed && playerVelocity.z > maxSpeed)
@@ -133,19 +128,20 @@ public class PlayerMovementWithStrafes : MonoBehaviour
                 speedLimitBool = false;
             }
             isDashing = false;
+            canDash = true; // Reset canDash when touching the ground
             GroundMove();
-            ApplyBounce(); // Apply bounce effect when grounded
+            ApplyBounce();
         }
-        else if (!controller.isGrounded)
+        else
+        {
             AirMove();
+        }
 
         if (speedLimitBool)
         {
-            // Apply speed limit
             ApplySpeedLimit();
         }
 
-        // Apply force when primary mouse button is clicked
         if (Input.GetMouseButtonDown(0))
         {
             if (!isDashing)
@@ -155,10 +151,8 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             }
         }
 
-        // Gradually slow down the dash
         if (isDashing)
         {
-
             float dashDistance = Vector3.Distance(dashStartPos, transform.position);
             if (dashDistance >= maxDashDistance)
             {
@@ -166,16 +160,13 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             }
         }
 
-        // Apply downward force when Shift key is pressed
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
-            playerVelocity.y += gravity * 2 * Time.deltaTime; // Adjust the multiplier as needed for the desired downward force
+            playerVelocity.y += gravity * 2 * Time.deltaTime;
         }
 
-        // Move the controller
         controller.Move(playerVelocity * Time.deltaTime);
 
-        // Calculate top velocity
         udp = playerVelocity;
         udp.y = 0;
         if (udp.magnitude > playerTopVelocity)
@@ -187,8 +178,9 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         speedLabel.text = "speed: " + Mathf.Round(speed);
         directionLabel.text = "direction: " + wishdir;
         jumpQueueLabel.text = "jump queue: " + JumpQueue;
-        dashLabel.text = "dash: " + isDashing;
+        dashLabel.text = "dash: " + canDash;
     }
+
 
     public void SetMovementDir()
     {
@@ -198,29 +190,28 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     void QueueJump()
     {
-        if (Input.mouseScrollDelta.y < 0  || Input.GetButtonDown("Jump"))
+        if (Input.mouseScrollDelta.y < 0 || Input.GetButtonDown("Jump"))
         {
-			Debug.Log("Jumping");
+            Debug.Log("Jumping");
             bounceHeight = 1.5f;
             if (IsGrounded)
             {
-                // If on the ground, immediately apply the jump
                 wishJump = true;
             }
             else
             {
-                // Queue the jump if in the air
                 //JumpQueue = true;
+                StartCoroutine(BufferJump());
             }
         }
 
-        // Apply the queued jump if on the ground
         if (IsGrounded && JumpQueue)
         {
             wishJump = true;
             JumpQueue = false;
         }
     }
+
 
     public void Accelerate(Vector3 wishdir, float wishspeed, float accel)
     {
@@ -383,13 +374,18 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     void ApplyForceInFacingDirection()
     {
-        speedLimitBool = false;
-        isDashing = true;
-        dashStartPos = transform.position;
-        Vector3 forceDirection = playerView.forward;
-        playerVelocity += forceDirection * forceMagnitude;
-        StartCoroutine(ResetSpeedLimitAfterDelay(0.2f)); // Adjust the delay as needed
+        if (canDash)
+        {
+            speedLimitBool = false;
+            isDashing = true;
+            dashStartPos = transform.position;
+            Vector3 forceDirection = playerView.forward;
+            playerVelocity += forceDirection * forceMagnitude;
+            canDash = false; // Set canDash to false after dashing
+            StartCoroutine(ResetSpeedLimitAfterDelay(0.2f)); // Adjust the delay as needed
+        }
     }
+
 
     private IEnumerator ResetSpeedLimitAfterDelay(float delay)
     {
@@ -398,6 +394,17 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         ApplySpeedLimit();
     }
 
+
+    private IEnumerator BufferJump()
+    {
+        Debug.Log("Buffering Jump...");
+        JumpQueue = true;
+        yield return new WaitForSeconds(0.2f);
+        JumpQueue = false;
+        Debug.Log("Buffer Jump End");
+
+
+    }
     private IEnumerator SlowDownDash()
     {
         float elapsed = 0f;

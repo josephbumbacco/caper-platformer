@@ -670,6 +670,14 @@ PrefabInstance:
       propertyPath: mouseSensitivity
       value: 300
       objectReference: {fileID: 0}
+    - target: {fileID: 978331191281162719, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 978331191281162719, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.084
+      objectReference: {fileID: 0}
     - target: {fileID: 2407525965432617693, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 11.39
@@ -710,6 +718,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3359709359517290678, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: player
       value: 
@@ -748,7 +760,7 @@ PrefabInstance:
       objectReference: {fileID: 797540093}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: bounceHeight
-      value: 5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: bounceDamping
