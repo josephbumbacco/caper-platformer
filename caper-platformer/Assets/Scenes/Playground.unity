@@ -666,6 +666,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 154922835021365424, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
+      propertyPath: mouseSensitivity
+      value: 300
+      objectReference: {fileID: 0}
     - target: {fileID: 2407525965432617693, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: m_LocalPosition.x
       value: 11.39
@@ -744,7 +748,11 @@ PrefabInstance:
       objectReference: {fileID: 797540093}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: bounceHeight
-      value: 2
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
+      propertyPath: bounceDamping
+      value: 0.3
       objectReference: {fileID: 0}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: topSpeedLabel
@@ -756,7 +764,7 @@ PrefabInstance:
       objectReference: {fileID: 1786025763}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: forceMagnitude
-      value: 50
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: jumpQueueLabel
@@ -764,7 +772,7 @@ PrefabInstance:
       objectReference: {fileID: 1219857338}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: maxDashDistance
-      value: 25
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 6784460595927765756, guid: d792498d4cc52954fbc0cc04ea15eccd, type: 3}
       propertyPath: dashSlowdownTime

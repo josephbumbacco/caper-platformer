@@ -98,6 +98,8 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     void Update()
     {
+
+       // Debug.Log(Input.mouseScrollDelta.y);
         #region //UI, Feel free to remove the region.
 
         moved = player.position - lastPos;
@@ -196,8 +198,9 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     void QueueJump()
     {
-        if (Input.GetButtonDown("Jump"))
+        if (Input.mouseScrollDelta.y < 0  || Input.GetButtonDown("Jump"))
         {
+			Debug.Log("Jumping");
             bounceHeight = 1.5f;
             if (IsGrounded)
             {
@@ -207,7 +210,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             else
             {
                 // Queue the jump if in the air
-                JumpQueue = true;
+                //JumpQueue = true;
             }
         }
 
@@ -304,9 +307,9 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     public void GroundMove()
     {
         if (!wishJump)
-            ApplyFriction(1.0f);
+            ApplyFriction(5.0f);
         else
-            ApplyFriction(0);
+            ApplyFriction(10.0f);
 
         SetMovementDir();
 
