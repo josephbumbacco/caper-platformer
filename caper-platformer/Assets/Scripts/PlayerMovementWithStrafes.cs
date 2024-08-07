@@ -40,6 +40,8 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     public float maxDashDistance;
     private Vector3 dashStartPos;
     public float dashDecelerationTime = 0.5f; // Time to smoothly decelerate after the dash
+    public float slopeForce = 10f; // The force to apply when leaving a slope
+    private bool wasOnSlope = false; // Track if the player was on a slope
 
     float speedLimit = 20f;
     float addspeed;
@@ -59,7 +61,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
     public bool isDashing = false;
     public bool speedLimitBool = true;
     private bool canDash = true;
-
 
     private Vector3 lastPos;
     private Vector3 moved;
@@ -123,6 +124,18 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
         if (controller.isGrounded)
         {
+            // Check if the player is on a slope
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, Vector3.down, out hit, GroundDistance, GroundMask))
+            {
+                float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+                wasOnSlope = slopeAngle > 0 && slopeAngle < 45; // Customize the angle range as needed
+            }
+            else
+            {
+                wasOnSlope = false;
+            }
+
             if (playerVelocity.x > maxSpeed && playerVelocity.z > maxSpeed)
             {
                 speedLimitBool = false;
@@ -181,7 +194,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         dashLabel.text = "dash: " + canDash;
     }
 
-
     public void SetMovementDir()
     {
         x = Input.GetAxis("Horizontal");
@@ -200,7 +212,7 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             }
             else
             {
-                //JumpQueue = true;
+                // JumpQueue = true;
                 StartCoroutine(BufferJump());
             }
         }
@@ -211,7 +223,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
             JumpQueue = false;
         }
     }
-
 
     public void Accelerate(Vector3 wishdir, float wishspeed, float accel)
     {
@@ -297,6 +308,18 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     public void GroundMove()
     {
+        // Check if the player is on a slope
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, GroundDistance, GroundMask))
+        {
+            float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+            wasOnSlope = slopeAngle > 0 && slopeAngle < 45; // Customize the angle range as needed
+        }
+        else
+        {
+            wasOnSlope = false;
+        }
+
         if (!wishJump)
             ApplyFriction(5.0f);
         else
@@ -320,6 +343,11 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         {
             playerVelocity.y = jumpSpeed;
             wishJump = false;
+        }
+
+        if (wasOnSlope && !IsGrounded) // Apply force when leaving the slope
+        {
+            ApplySlopeForce();
         }
 
         void ApplyFriction(float t)
@@ -386,14 +414,12 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         }
     }
 
-
     private IEnumerator ResetSpeedLimitAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
         speedLimitBool = true;
         ApplySpeedLimit();
     }
-
 
     private IEnumerator BufferJump()
     {
@@ -402,9 +428,8 @@ public class PlayerMovementWithStrafes : MonoBehaviour
         yield return new WaitForSeconds(0.2f);
         JumpQueue = false;
         Debug.Log("Buffer Jump End");
-
-
     }
+
     private IEnumerator SlowDownDash()
     {
         float elapsed = 0f;
@@ -444,7 +469,6 @@ public class PlayerMovementWithStrafes : MonoBehaviour
 
     private void ApplyBounce()
     {
-        
         if (IsGrounded && Time.time - lastBounceTime >= bounceCooldown)
         {
             // Check if we are falling
@@ -458,6 +482,17 @@ public class PlayerMovementWithStrafes : MonoBehaviour
                     lastBounceTime = Time.time; // Update last bounce time
                 }
             }
+        }
+    }
+
+    void ApplySlopeForce()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, GroundDistance, GroundMask))
+        {
+            Vector3 slopeNormal = hit.normal;
+            Vector3 forceDirection = Vector3.up + slopeNormal; // Force direction relative to the slope
+            playerVelocity += forceDirection.normalized * slopeForce; // Apply the force
         }
     }
 }
